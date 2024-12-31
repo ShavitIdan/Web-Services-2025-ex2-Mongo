@@ -4,6 +4,13 @@ const logger = require("morgan");
 
 const port = process.env.PORT || 8080;
 
+const { studentsRouter } = require("./routers/studentsRouter");
+
+app.use(express.json());
+app.use(logger("dev"));
+
+app.use("/students", studentsRouter);
+
 app.use((req, res) => {
   res.status(400).send("Page wasn't found");
 });

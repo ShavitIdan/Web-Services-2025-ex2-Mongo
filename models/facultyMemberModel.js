@@ -2,8 +2,8 @@ const { Schema, model } = require("mongoose");
 
 const facultyMemberSchema = new Schema(
   {
-    id: { type: Number },
-    name: { type: String },
+    id: { type: Number, required: true },
+    name: { type: String, required: true },
     address: { type: String },
   },
   { collection: "facultyMembers" }
