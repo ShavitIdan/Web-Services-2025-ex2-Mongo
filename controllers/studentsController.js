@@ -29,6 +29,20 @@ const studentsController = {
       res.json({ error: err }).status(500);
     }
   },
+
+  async deleteStudent(req, res) {
+    try {
+      const { id } = req.params;
+      const deletedStudent = await Student.findByIdAndDelete(id);
+      if (!deletedStudent) {
+        res.json({ error: "Student not found" }).status(404);
+        return;
+      }
+      res.json("Student deleted successfully").status(200);
+    } catch (err) {
+      res.json({ error: "Failed to delete student" }).status(500);
+    }
+  },
 };
 
 module.exports = { studentsController };
