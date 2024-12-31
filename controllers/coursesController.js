@@ -31,6 +31,25 @@ const coursesController = {
     }
   },
 
+  async updateCourse(req, res) {
+    try {
+      const { id } = req.params;
+      const { name, lecturer, credits, capacity } = req.body;
+      const updatedCourse = await Course.findByIdAndUpdate(
+        id,
+        { name, lecturer, credits, capacity },
+        { new: true }
+      );
+      if (!updatedCourse) {
+        res.json({ error: "Course not found" }).status(404);
+        return;
+      }
+      res.json(updatedCourse).status(200);
+    } catch (err) {
+      res.json({ error: err }).status(500);
+    }
+  },
+
   async deleteCourse(req, res) {
     try {
       const { id } = req.params;

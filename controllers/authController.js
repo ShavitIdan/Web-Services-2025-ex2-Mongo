@@ -39,7 +39,7 @@ const authController = {
         res.json({ error: "Invalid credentials" }).status(401);
         return;
       }
-      const token = generateToken(user._id);
+      const token = generateToken(user);
       res.json({ token }).status(200);
     } catch (err) {
       res.json({ error: "Failed to login " + err }).status(500);
