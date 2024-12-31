@@ -3,7 +3,6 @@ const Course = require("./courseModel");
 
 const studentSchema = new Schema(
   {
-    id: { type: Number, required: true, unique: true },
     name: { type: String, required: true },
     address: { type: String, required: true },
     academic_year: { type: Number, required: true },
