@@ -138,6 +138,60 @@ const coursesController = {
         .json({ error: "Failed to enroll in course", details: error.message });
     }
   },
+
+  async dropFromCourse(req, res) {
+    try {
+      const { courseId } = req.params;
+      const userId = req.user.id;
+
+      const user = await User.findById(userId).populate("refId");
+      if (!user || user.role !== "Student") {
+        return res
+          .status(403)
+          .json({ error: "Only students can drop from courses" });
+      }
+
+      const student = user.refId;
+      if (!student) {
+        return res.status(404).json({ error: "Student not found" });
+      }
+
+      const course = await Course.findById(courseId);
+      if (!course) {
+        return res.status(404).json({ error: "Course not found" });
+      }
+
+      if (!course.students.includes(student._id)) {
+        return res
+          .status(400)
+          .json({ error: "You are not enrolled in this course" });
+      }
+
+      course.students = course.students.filter(
+        (studentId) => !studentId.equals(student._id)
+      );
+      student.courses = student.courses.filter(
+        (courseId) => !courseId.equals(course._id)
+      );
+      student.total_credits -= course.credits;
+
+      await Promise.all([course.save(), student.save()]);
+
+      res.status(200).json({
+        message: "Dropped course successfully",
+        course: {
+          id: course._id,
+          name: course.name,
+          credits: course.credits,
+        },
+      });
+    } catch (error) {
+      res.status(500).json({
+        error: "Failed to drop from course",
+        details: error.message,
+      });
+    }
+  },
 };
 
 module.exports = { coursesController };

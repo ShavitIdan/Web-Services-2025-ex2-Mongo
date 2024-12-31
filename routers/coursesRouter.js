@@ -36,4 +36,10 @@ coursesRouter.post(
   authorizeRole("Student"),
   coursesController.enrollInCourse
 );
+coursesRouter.post(
+  "/drop/:courseId",
+  authenticateToken,
+  authorizeRole("Student"),
+  coursesController.dropFromCourse
+);
 module.exports = { coursesRouter };
