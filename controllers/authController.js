@@ -19,7 +19,7 @@ const authController = {
       }
 
       let refId;
-      if (role === "student") {
+      if (role === "Student") {
         if (!academic_year) {
           return res
             .json({ error: "Please provide academic year" })
@@ -28,7 +28,7 @@ const authController = {
         const student = new Student({ name, address, academic_year });
         await student.save();
         refId = student._id;
-      } else if (role === "faculty") {
+      } else if (role === "FacultyMember") {
         const facultyMember = new FacultyMember({ name, address });
         await facultyMember.save();
         refId = facultyMember._id;

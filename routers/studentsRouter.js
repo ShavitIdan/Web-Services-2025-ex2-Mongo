@@ -8,19 +8,19 @@ const studentsRouter = new Router();
 studentsRouter.get(
   "/",
   authenticateToken,
-  authorizeRole("student"),
+  authorizeRole("Student"),
   studentsController.getAllStudents
 );
 studentsRouter.post(
   "/",
   authenticateToken,
-  authorizeRole("student"),
+  authorizeRole("Student"),
   studentsController.addStudent
 );
 studentsRouter.delete(
   "/:id",
   authenticateToken,
-  authorizeRole("student"),
+  authorizeRole("Student"),
   studentsController.deleteStudent
 );
 

@@ -9,20 +9,31 @@ coursesRouter.get("/", authenticateToken, coursesController.getAllCourses);
 coursesRouter.post(
   "/",
   authenticateToken,
-  authorizeRole("faculty"),
+  authorizeRole("FacultyMember"),
   coursesController.addCourse
 );
 coursesRouter.put(
   "/:id",
   authenticateToken,
-  authorizeRole("faculty"),
+  authorizeRole("FacultyMember"),
   coursesController.updateCourse
 );
 coursesRouter.delete(
   "/:id",
   authenticateToken,
-  authorizeRole("faculty"),
+  authorizeRole("FacultyMember"),
   coursesController.deleteCourse
 );
-
+coursesRouter.get(
+  "/:id",
+  authenticateToken,
+  authorizeRole("FacultyMember"),
+  coursesController.getCourseStatus
+);
+coursesRouter.post(
+  "/enroll/:courseId",
+  authenticateToken,
+  authorizeRole("Student"),
+  coursesController.enrollInCourse
+);
 module.exports = { coursesRouter };
