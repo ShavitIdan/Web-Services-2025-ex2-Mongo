@@ -2,11 +2,12 @@ const { Schema, model } = require("mongoose");
 
 const courseSchema = new Schema(
   {
-    id: { type: Number },
+    id: { type: Number, required: true, unique: true },
     name: { type: String, required: true },
-    lecturer: { type: String },
-    credits: { type: Number, required: true },
-    capacity: { type: Number },
+    lecturer: { type: String, required: true },
+    credits: { type: Number, required: true, min: 3, max: 5 },
+    capacity: { type: Number, required: true },
+    students: [{ type: Schema.Types.ObjectId, ref: "Student" }],
   },
   { collection: "courses" }
 );
