@@ -13,7 +13,6 @@ const authController = {
           success: false,
           error: "Please provide all required fields",
         });
-        return;
       }
       const userExists = await User.findOne({ username });
       if (userExists) {

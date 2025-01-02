@@ -24,6 +24,14 @@ const coursesController = {
           error: "Please provide all required fields",
         });
       }
+      const courseExists = await Course.findOne({ name });
+      if (courseExists) {
+        return res.status(400).json({
+          success: false,
+          error: "Course already exists",
+        });
+      }
+
       const course = new Course({
         name,
         lecturer,
@@ -45,6 +53,13 @@ const coursesController = {
     try {
       const { id } = req.params;
       const { name, lecturer, credits, capacity } = req.body;
+      const courseExists = await Course.findOne({ name });
+      if (courseExists) {
+        return res.status(400).json({
+          success: false,
+          error: "Course name already exists",
+        });
+      }
       const updatedCourse = await Course.findByIdAndUpdate(
         id,
         { name, lecturer, credits, capacity },
@@ -55,6 +70,7 @@ const coursesController = {
           .status(404)
           .json({ success: false, error: "Course not found" });
       }
+
       res.status(200).json({ success: true, data: updatedCourse });
     } catch (err) {
       res.status(500).json({
@@ -68,7 +84,7 @@ const coursesController = {
   async deleteCourse(req, res) {
     try {
       const { id } = req.params;
-      const deletedCourse = await Course.findByIdAndDelete(id);
+      const deletedCourse = await Course.findOneAndDelete({ _id: id });
       if (!deletedCourse) {
         return res
           .status(404)
@@ -111,14 +127,14 @@ const coursesController = {
       });
     }
   },
+
   async enrollInCourse(req, res) {
     try {
-      const { courseId } = req.params;
+      const { id } = req.params;
       const userId = req.user.id;
 
       const user = await User.findById(userId).populate("refId");
       if (!user || user.role !== "Student") {
-        return res.status(403);
         return res.status(403).json({
           success: false,
           error: "Only students can enroll in courses",
@@ -132,7 +148,7 @@ const coursesController = {
           .json({ success: false, error: "Student not found" });
       }
 
-      const course = await Course.findById(courseId);
+      const course = await Course.findById(id);
       if (!course) {
         return res
           .status(404)
@@ -177,7 +193,7 @@ const coursesController = {
 
   async dropFromCourse(req, res) {
     try {
-      const { courseId } = req.params;
+      const { id } = req.params;
       const userId = req.user.id;
 
       const user = await User.findById(userId).populate("refId");
@@ -195,7 +211,7 @@ const coursesController = {
           .json({ success: false, error: "Student not found" });
       }
 
-      const course = await Course.findById(courseId);
+      const course = await Course.findById(id);
       if (!course) {
         return res
           .status(404)
@@ -212,9 +228,7 @@ const coursesController = {
       course.students = course.students.filter(
         (studentId) => !studentId.equals(student._id)
       );
-      student.courses = student.courses.filter(
-        (courseId) => !courseId.equals(course._id)
-      );
+      student.courses = student.courses.filter((id) => !id.equals(course._id));
       student.total_credits -= course.credits;
 
       await Promise.all([course.save(), student.save()]);

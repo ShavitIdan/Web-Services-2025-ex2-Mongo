@@ -6,6 +6,18 @@ const { authorizeRole } = require("../middleware/authorizeRole");
 const coursesRouter = new Router();
 
 coursesRouter.get("/", authenticateToken, coursesController.getAllCourses);
+coursesRouter.get(
+  "/:id",
+  authenticateToken,
+  authorizeRole("FacultyMember"),
+  coursesController.getCourseStatus
+);
+coursesRouter.post(
+  "/:id",
+  authenticateToken,
+  authorizeRole("Student"),
+  coursesController.enrollInCourse
+);
 coursesRouter.post(
   "/",
   authenticateToken,
@@ -24,20 +36,9 @@ coursesRouter.delete(
   authorizeRole("FacultyMember"),
   coursesController.deleteCourse
 );
-coursesRouter.get(
-  "/:id",
-  authenticateToken,
-  authorizeRole("FacultyMember"),
-  coursesController.getCourseStatus
-);
-coursesRouter.post(
-  "/enroll/:courseId",
-  authenticateToken,
-  authorizeRole("Student"),
-  coursesController.enrollInCourse
-);
-coursesRouter.post(
-  "/drop/:courseId",
+
+coursesRouter.delete(
+  "/drop/:id",
   authenticateToken,
   authorizeRole("Student"),
   coursesController.dropFromCourse
