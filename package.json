@@ -12,10 +12,12 @@
   "description": "",
   "dependencies": {
     "dotenv": "^16.4.7",
+    "ex2-mongo": "file:",
     "express": "^4.21.2",
     "jsonwebtoken": "^9.0.2",
     "mongodb": "^6.12.0",
     "mongoose": "^8.9.2",
-    "morgan": "^1.10.0"
+    "morgan": "^1.10.0",
+    "nodemon": "^3.1.9"
   }
 }
