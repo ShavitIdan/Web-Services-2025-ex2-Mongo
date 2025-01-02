@@ -3,7 +3,7 @@ const jwt = require("jsonwebtoken");
 const authenticateToken = (req, res, next) => {
   const token = req.headers.authorization?.split(" ")[1];
   if (!token) {
-    res.json({ error: "Access token is missing" }).status(401);
+    res.status(401).json({ error: "Access token is missing" });
     return;
   }
   try {
@@ -11,7 +11,7 @@ const authenticateToken = (req, res, next) => {
     req.user = decoded;
     next();
   } catch (err) {
-    res.json({ error: "Invalid or expired token" }).status(403);
+    res.status(403).json({ error: "Invalid or expired token" });
   }
 };
 

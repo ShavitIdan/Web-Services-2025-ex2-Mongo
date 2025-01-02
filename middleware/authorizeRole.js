@@ -3,8 +3,8 @@ const authorizeRole = (role) => {
     console.log("User Role:", req.user.role);
     if (req.user.role !== role) {
       return res
-        .json({ error: "Access denied: insufficient permissions" })
-        .status(403);
+        .status(403)
+        .json({ error: "Access denied: insufficient permissions" });
     }
     next();
   };
