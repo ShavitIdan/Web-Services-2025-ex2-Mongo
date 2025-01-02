@@ -41,6 +41,12 @@ const coursesController = {
       await course.save();
       res.status(201).json({ success: true, data: course });
     } catch (err) {
+      if (err.code === 11000) {
+        return res.status(400).json({
+          success: false,
+          error: "Course already exists",
+        });
+      }
       res.status(500).json({
         success: false,
         error: "Failed to add course",
