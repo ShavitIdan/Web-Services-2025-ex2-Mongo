@@ -6,31 +6,39 @@ const coursesController = {
   async getAllCourses(req, res) {
     try {
       const courses = await Course.find({}).populate("students", "name");
-      return res.json(courses).status(200);
+      res.status(200).json({ success: true, data: courses });
     } catch (err) {
-      res.json({ error: err }).status(500);
+      res.status(500).json({
+        success: false,
+        error: "Failed to fetch courses",
+        details: err.message,
+      });
     }
   },
 
   async addCourse(req, res) {
     try {
-      const { id, name, lecturer, credits, capacity } = req.body;
-      if (!id || !name || !lecturer || !credits || !capacity) {
-        return res
-          .json({ error: "Please provide all required fields" })
-          .status(400);
+      const { name, lecturer, credits, capacity } = req.body;
+      if (!name || !lecturer || !credits || !capacity) {
+        return res.status(400).json({
+          success: false,
+          error: "Please provide all required fields",
+        });
       }
       const course = new Course({
-        id,
         name,
         lecturer,
         credits,
         capacity,
       });
       await course.save();
-      return res.json(course).status(201);
+      res.status(201).json({ success: true, data: course });
     } catch (err) {
-      res.json({ error: err }).status(500);
+      res.status(500).json({
+        success: false,
+        error: "Failed to add course",
+        details: err.message,
+      });
     }
   },
 
@@ -44,11 +52,17 @@ const coursesController = {
         { new: true }
       );
       if (!updatedCourse) {
-        return res.json({ error: "Course not found" }).status(404);
+        return res
+          .status(404)
+          .json({ success: false, error: "Course not found" });
       }
-      return res.json(updatedCourse).status(200);
+      res.status(200).json({ success: true, data: updatedCourse });
     } catch (err) {
-      res.json({ error: err }).status(500);
+      res.status(500).json({
+        success: false,
+        error: "Failed to update course",
+        details: err.message,
+      });
     }
   },
 
@@ -57,11 +71,19 @@ const coursesController = {
       const { id } = req.params;
       const deletedCourse = await Course.findByIdAndDelete(id);
       if (!deletedCourse) {
-        return res.json({ error: "Course not found" }).status(404);
+        return res
+          .status(404)
+          .json({ success: false, error: "Course not found" });
       }
-      return res.json("Course deleted successfully").status(200);
+      res
+        .status(200)
+        .json({ success: true, message: "Course deleted successfully" });
     } catch (err) {
-      res.json({ error: "Failed to delete course" }).status(500);
+      res.status(500).json({
+        success: false,
+        error: "Failed to delete course",
+        details: err.message,
+      });
     }
   },
 
@@ -70,7 +92,9 @@ const coursesController = {
       const { id } = req.params;
       const course = await Course.findById(id).populate("students", "name");
       if (!course) {
-        return res.json({ error: "Course not found" }).status(404);
+        return res
+          .status(404)
+          .json({ success: false, error: "Course not found" });
       }
       const status = {
         courseName: course.name,
@@ -79,9 +103,13 @@ const coursesController = {
         remainingCapacity: course.capacity - course.students.length,
         students: course.students.map((student) => student.name),
       };
-      return res.json(status).status(200);
+      res.status(200).json({ success: true, data: status });
     } catch (err) {
-      res.json({ error: err }).status(500);
+      res.status(500).json({
+        success: false,
+        error: "Failed to fetch course status",
+        details: err.message,
+      });
     }
   },
   async enrollInCourse(req, res) {
@@ -91,36 +119,45 @@ const coursesController = {
 
       const user = await User.findById(userId).populate("refId");
       if (!user || user.role !== "Student") {
-        return res
-          .status(403)
-          .json({ error: "Only students can enroll in courses" });
+        return res.status(403);
+        return res.status(403).json({
+          success: false,
+          error: "Only students can enroll in courses",
+        });
       }
 
       const student = user.refId;
       if (!student) {
-        return res.status(404).json({ error: "Student not found" });
+        return res
+          .status(404)
+          .json({ success: false, error: "Student not found" });
       }
 
       const course = await Course.findById(courseId);
       if (!course) {
-        return res.status(404).json({ error: "Course not found" });
+        return res
+          .status(404)
+          .json({ success: false, error: "Course not found" });
       }
 
       if (course.students.length >= course.capacity) {
-        return res.status(400).json({ error: "Course is full" });
+        return res
+          .status(400)
+          .json({ success: false, error: "Course is full" });
       }
 
       const totalCredits = student.total_credits || 0;
       if (totalCredits + course.credits > 20) {
-        return res
-          .status(400)
-          .json({ error: "Cannot enroll: exceeding maximum credits" });
+        return res.status(400).json({
+          success: false,
+          error: "Cannot enroll: exceeding maximum credits",
+        });
       }
 
       if (course.students.includes(student._id)) {
         return res
           .status(400)
-          .json({ error: "Already enrolled in this course" });
+          .json({ success: false, error: "Already enrolled in this course" });
       }
 
       course.students.push(student._id);
@@ -129,13 +166,13 @@ const coursesController = {
 
       await Promise.all([course.save(), student.save()]);
 
-      res.status(200).json({
-        message: "Enrolled successfully",
-      });
+      res.status(200).json({ success: true, message: "Enrolled successfully" });
     } catch (error) {
-      res
-        .status(500)
-        .json({ error: "Failed to enroll in course", details: error.message });
+      res.status(500).json({
+        success: false,
+        error: "Failed to enroll in course",
+        details: err.message,
+      });
     }
   },
 
@@ -146,25 +183,31 @@ const coursesController = {
 
       const user = await User.findById(userId).populate("refId");
       if (!user || user.role !== "Student") {
-        return res
-          .status(403)
-          .json({ error: "Only students can drop from courses" });
+        return res.status(403).json({
+          success: false,
+          error: "Only students can drop from courses",
+        });
       }
 
       const student = user.refId;
       if (!student) {
-        return res.status(404).json({ error: "Student not found" });
+        return res
+          .status(404)
+          .json({ success: false, error: "Student not found" });
       }
 
       const course = await Course.findById(courseId);
       if (!course) {
-        return res.status(404).json({ error: "Course not found" });
+        return res
+          .status(404)
+          .json({ success: false, error: "Course not found" });
       }
 
       if (!course.students.includes(student._id)) {
-        return res
-          .status(400)
-          .json({ error: "You are not enrolled in this course" });
+        return res.status(400).json({
+          success: false,
+          error: "You are not enrolled in this course",
+        });
       }
 
       course.students = course.students.filter(
@@ -178,6 +221,7 @@ const coursesController = {
       await Promise.all([course.save(), student.save()]);
 
       res.status(200).json({
+        success: true,
         message: "Dropped course successfully",
         course: {
           id: course._id,
@@ -186,10 +230,13 @@ const coursesController = {
         },
       });
     } catch (error) {
-      res.status(500).json({
-        error: "Failed to drop from course",
-        details: error.message,
-      });
+      res
+        .status(500)
+        .json({
+          success: false,
+          error: "Failed to drop from course",
+          details: err.message,
+        });
     }
   },
 };

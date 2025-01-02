@@ -9,21 +9,27 @@ const authController = {
       const { username, password, role, name, address, academic_year } =
         req.body;
       if (!username || !password || !role || !name || !address) {
-        res.json({ error: "Please provide all required fields" }).status(400);
+        return res.status(400).json({
+          success: false,
+          error: "Please provide all required fields",
+        });
         return;
       }
       const userExists = await User.findOne({ username });
       if (userExists) {
-        res.json({ error: "User already exists" }).status(400);
-        return;
+        return res.status(400).json({
+          success: false,
+          error: "User already exists",
+        });
       }
 
       let refId;
       if (role === "Student") {
         if (!academic_year) {
-          return res
-            .json({ error: "Please provide academic year" })
-            .status(400);
+          return res.status(400).json({
+            success: false,
+            error: "Please provide academic year",
+          });
         }
         const student = new Student({ name, address, academic_year });
         await student.save();
@@ -33,14 +39,24 @@ const authController = {
         await facultyMember.save();
         refId = facultyMember._id;
       } else {
-        return res.json({ error: "Invalid role" }).status(400);
+        return res.status(400).json({
+          success: false,
+          error: "Invalid role",
+        });
       }
 
       const user = new User({ username, password, role, refId });
       await user.save();
-      res.json({ message: "User created successfully" }).status(201);
+      res.status(201).json({
+        success: true,
+        message: "User created successfully",
+      });
     } catch (err) {
-      res.json({ error: "Failed to create user" + err }).status(500);
+      res.status(500).json({
+        success: false,
+        error: "Failed to create user",
+        details: err.message,
+      });
     }
   },
 
@@ -48,9 +64,10 @@ const authController = {
     try {
       const authHeader = req.headers.authorization;
       if (!authHeader || !authHeader.startsWith("Basic ")) {
-        return res
-          .status(401)
-          .json({ error: "Authorization header is missing or invalid" });
+        return res.status(401).json({
+          success: false,
+          error: "Authorization header is missing or invalid",
+        });
       }
 
       const base64Credentials = authHeader.split(" ")[1];
@@ -60,25 +77,36 @@ const authController = {
       const [username, password] = credentials.split(":");
 
       if (!username || !password) {
-        res
-          .json({
-            error:
-              "Please provide all required fields in the Authorization header",
-          })
-          .status(400);
-        return;
+        return res.status(400).json({
+          success: false,
+          error:
+            "Please provide all required fields in the Authorization header",
+        });
       }
       const user = await User.findOne({ username });
       if (!user) {
-        return res.json({ error: "User not found" }).status(404);
+        return res.status(404).json({
+          success: false,
+          error: "User not found",
+        });
       }
       if (user.password !== password) {
-        return res.json({ error: "Invalid credentials" }).status(401);
+        return res.status(401).json({
+          success: false,
+          error: "Invalid credentials",
+        });
       }
       const token = generateToken(user);
-      return res.json({ token }).status(200);
+      return res.status(200).json({
+        success: true,
+        token,
+      });
     } catch (err) {
-      res.json({ error: "Failed to login " + err }).status(500);
+      res.status(500).json({
+        success: false,
+        error: "Failed to login",
+        details: err.message,
+      });
     }
   },
 };

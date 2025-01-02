@@ -4,9 +4,13 @@ const facultyMembersController = {
   async getAllFacultyMembers(req, res) {
     try {
       const facultyMembers = await FacultyMember.find({});
-      res.json(facultyMembers).status(200);
+      res.status(200).json({ success: true, data: facultyMembers });
     } catch (err) {
-      res.json({ error: err }).status(500);
+      res.status(500).json({
+        success: false,
+        error: "Failed to fetch faculty members",
+        details: err.message,
+      });
     }
   },
 
@@ -14,14 +18,21 @@ const facultyMembersController = {
     try {
       const { id, name, address } = req.body;
       if (!id || !name || !address) {
-        res.json({ error: "Please provide all required fields" }).status(400);
+        return res.status(400).json({
+          success: false,
+          error: "Please provide all required fields",
+        });
         return;
       }
       const facultyMember = new FacultyMember({ id, name, address });
       await facultyMember.save();
-      res.json(facultyMember).status(201);
+      res.status(201).json({ success: true, data: facultyMember });
     } catch (err) {
-      res.json({ error: err }).status(500);
+      res.status(500).json({
+        success: false,
+        error: "Failed to add faculty member",
+        details: err.message,
+      });
     }
   },
 
@@ -30,12 +41,23 @@ const facultyMembersController = {
       const { id } = req.params;
       const deletedMember = await FacultyMember.findByIdAndDelete(id);
       if (!deletedMember) {
-        res.json({ error: "Faculty member not found" }).status(404);
+        return res
+          .status(404)
+          .json({ success: false, error: "Faculty member not found" });
         return;
       }
-      res.json("Faculty member deleted successfully").status(200);
+      res.status(200).json({
+        success: true,
+        message: "Faculty member deleted successfully",
+      });
     } catch (err) {
-      res.json({ error: "Failed to delete Faculty member" }).status(500);
+      res
+        .status(500)
+        .json({
+          success: false,
+          error: "Failed to delete faculty member",
+          details: err.message,
+        });
     }
   },
 };
