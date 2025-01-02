@@ -1,6 +1,5 @@
 const Course = require("../models/courseModel");
 const User = require("../models/userModel");
-const Student = require("../models/studentModel");
 
 const coursesController = {
   async getAllCourses(req, res) {
@@ -230,13 +229,11 @@ const coursesController = {
         },
       });
     } catch (error) {
-      res
-        .status(500)
-        .json({
-          success: false,
-          error: "Failed to drop from course",
-          details: err.message,
-        });
+      res.status(500).json({
+        success: false,
+        error: "Failed to drop from course",
+        details: err.message,
+      });
     }
   },
 };

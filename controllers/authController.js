@@ -1,7 +1,7 @@
 const User = require("../models/userModel");
-const Student = require("../models/studentModel");
-const FacultyMember = require("../models/facultyMemberModel");
 const { generateToken } = require("../utils/generateToken");
+const { studentsController } = require("./studentsController");
+const { facultyMembersController } = require("./facultyMembersController");
 
 const authController = {
   async register(req, res) {
@@ -31,12 +31,18 @@ const authController = {
             error: "Please provide academic year",
           });
         }
-        const student = new Student({ name, address, academic_year });
-        await student.save();
+        const student = await studentsController.addStudent({
+          name,
+          address,
+          academic_year,
+        });
+
         refId = student._id;
       } else if (role === "FacultyMember") {
-        const facultyMember = new FacultyMember({ name, address });
-        await facultyMember.save();
+        const facultyMember = await facultyMembersController.addFacultyMember({
+          name,
+          address,
+        });
         refId = facultyMember._id;
       } else {
         return res.status(400).json({
