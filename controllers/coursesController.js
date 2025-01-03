@@ -47,6 +47,13 @@ const coursesController = {
           error: "Course already exists",
         });
       }
+      if (err.name === "ValidationError") {
+        return res.status(400).json({
+          success: false,
+          error: "Validation error",
+          details: err.message,
+        });
+      }
       res.status(500).json({
         success: false,
         error: "Failed to add course",
@@ -65,6 +72,18 @@ const coursesController = {
           success: false,
           error: "Course name already exists",
         });
+      }
+
+      if (credits < 3 || credits > 5) {
+        return res
+          .status(400)
+          .json({ success: false, error: "Invalid credits" });
+      }
+
+      if (capacity < 1) {
+        return res
+          .status(400)
+          .json({ success: false, error: "Invalid capacity" });
       }
       const updatedCourse = await Course.findByIdAndUpdate(
         id,
