@@ -14,7 +14,7 @@ app.use("/auth", authRouter);
 app.use("/courses", coursesRouter);
 
 app.use((req, res) => {
-  res.status(400).send("Page wasn't found");
+  res.status(404).send("Page wasn't found");
 });
 
 app.listen(port, () => {
