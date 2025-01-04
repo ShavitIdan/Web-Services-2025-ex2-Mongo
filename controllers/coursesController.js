@@ -66,6 +66,12 @@ const coursesController = {
     try {
       const { id } = req.params;
       const { name, lecturer, credits, capacity } = req.body;
+      if (!mongoose.isValidObjectId(id)) {
+        return res.status(400).json({
+          success: false,
+          error: "Invalid course ID",
+        });
+      }
       const courseExists = await Course.findOne({ name });
       if (courseExists) {
         return res.status(400).json({
