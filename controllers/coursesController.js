@@ -1,5 +1,6 @@
 const Course = require("../models/courseModel");
 const User = require("../models/userModel");
+const mongoose = require("mongoose");
 
 const coursesController = {
   async getAllCourses(req, res) {
@@ -72,6 +73,14 @@ const coursesController = {
           error: "Invalid course ID",
         });
       }
+      const course = await Course.findById(id);
+      if (!course) {
+        return res.status(404).json({
+          success: false,
+          error: "Course not found",
+        });
+      }
+
       const courseExists = await Course.findOne({ name });
       if (courseExists) {
         return res.status(400).json({
@@ -115,7 +124,20 @@ const coursesController = {
   async deleteCourse(req, res) {
     try {
       const { id } = req.params;
-      const deletedCourse = await Course.findOneAndDelete({ _id: id });
+      if (!mongoose.isValidObjectId(id)) {
+        return res.status(400).json({
+          success: false,
+          error: "Invalid course ID",
+        });
+      }
+      const deletedCourse = await Course.findById(id);
+      if (!deletedCourse) {
+        return res.status(404).json({
+          success: false,
+          error: "Course not found",
+        });
+      }
+      await deletedCourse.deleteOne();
       if (!deletedCourse) {
         return res
           .status(404)
